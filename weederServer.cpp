@@ -76,12 +76,14 @@ void WeederIoTServer::createResource(string Uri, string Type, EntityHandler Cb, 
     string resourceInterface = EDISON_RESOURCE_INTERFACE;
     uint8_t resourceFlag = OC_DISCOVERABLE | OC_OBSERVABLE;
 
+    cout << "Creating resource: " << Type << endl;
+
     OCStackResult result = OCPlatform::registerResource(Handle, resourceUri, resourceType, resourceInterface, Cb, resourceFlag);
 
     if(result != OC_STACK_OK)
-        cerr << "Could not create " << Type << " resource" << endl;
+        cerr << "\tCould not create " << Type << " resource" << endl;
     else
-        cout << "Succesfully created " << Type << "resource" << endl;
+        cout << "\tSuccesfully created " << Type << " resource" << endl;
 }
 
 OCRepresentation WeederIoTServer::getTemperatureSensor1Rep() {
