@@ -24,11 +24,13 @@
 #define EDISON_RESOURCE_INTERFACE "oic.if.rw"
 
 #define TEMPERATURE_RESOURCE_TYPE "core.temperature"
-#define TEMPERATURE_RESOURCE_ENDPOINT "/temperature"
+#define TEMPERATURE1_RESOURCE_ENDPOINT "/temperature/1"
+#define TEMPERATURE2_RESOURCE_ENDPOINT "/temperature/2"
 #define TEMPERATURE_RESOURCE_KEY "temperature"
 
 #define MOIST_RESOURCE_TYPE "core.humidity" // core.moist
-#define MOIST_RESOURCE_ENDPOINT "/humidity" // /moist
+#define MOIST1_RESOURCE_ENDPOINT "/humidity/1" // /moist
+#define MOIST2_RESOURCE_ENDPOINT "/humidity/2" // /moist
 #define MOIST_RESOURCE_KEY "humidity"       // /moist
 
 #endif //WEEDER_NAMEDEFS_H

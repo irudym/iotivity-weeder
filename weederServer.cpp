@@ -52,20 +52,20 @@ WeederIoTServer::~WeederIoTServer() {
 
 void WeederIoTServer::setupResources() {
     EntityHandler cb1 = bind(&WeederIoTServer::temperatureSensor1EntityHandler, this, placeholders::_1);
-    createResource(TEMPERATURE_RESOURCE_ENDPOINT, TEMPERATURE_RESOURCE_TYPE, cb1,
+    createResource(TEMPERATURE1_RESOURCE_ENDPOINT, TEMPERATURE_RESOURCE_TYPE, cb1,
                    m_temperatureSensor1Res);
     //IoTObserverCb tempObsCb = bind(&IoTServer::temperatureObserverLoop, this);
     //m_temperatureObserverLoop = make_shared<IoTObserver>(tempObsCb);
 
     EntityHandler cb2 = bind(&WeederIoTServer::temperatureSensor2EntityHandler, this, placeholders::_1);
-    createResource(TEMPERATURE_RESOURCE_ENDPOINT, TEMPERATURE_RESOURCE_TYPE, cb2,
+    createResource(TEMPERATURE2_RESOURCE_ENDPOINT, TEMPERATURE_RESOURCE_TYPE, cb2,
                    m_temperatureSensor2Res);
 
     EntityHandler cb3 = bind(&WeederIoTServer::moistSensor1EntityHandler, this, placeholders::_1);
-    createResource(MOIST_RESOURCE_ENDPOINT, MOIST_RESOURCE_TYPE, cb3,
+    createResource(MOIST1_RESOURCE_ENDPOINT, MOIST_RESOURCE_TYPE, cb3,
                    m_moistSensor1Res);
     EntityHandler cb4 = bind(&WeederIoTServer::moistSensor2EntityHandler, this, placeholders::_1);
-    createResource(MOIST_RESOURCE_ENDPOINT, MOIST_RESOURCE_TYPE, cb4,
+    createResource(MOIST2_RESOURCE_ENDPOINT, MOIST_RESOURCE_TYPE, cb4,
                    m_moistSensor2Res);
 
 }
