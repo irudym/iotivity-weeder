@@ -1,0 +1,13 @@
+{
+  "application": "weeder",
+  "description": "Collect data from temperature and moist sensors",
+  "provider": "fennec",
+  "groups": "fennec-apps",
+  "command": [ "/bin/weeder" ],
+  "autostart": "true",
+  "container": {
+      "type": "nspawn",
+      "network": "VirtualEthernet",
+      "sharedsystem": false,
+  },
+}
