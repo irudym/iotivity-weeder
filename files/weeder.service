@@ -1,0 +1,13 @@
+[Unit]
+Description=Weeder - service to get data from moist and humidity sensors
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/opt/iotivity/apps/iotivity-weeder/weeder
+ExecReload=/bin/kill -HUP $MAINPID
+PIDFile=/var/run/weeder.pid
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

@@ -10,8 +10,7 @@ DEPENDS = "iotivity mraa"
 LIC_FILES_CHKSUM = "file://COPYING;beginline=1;endline=18;md5=12c4d45738df4e074960f6f9bfd8ee79"
 
 SRC_URI = "file://iotivity-weeder.tar.gz \
-	   file://manifest \
-	   file://weeder.service"
+	   file://manifest"
 
 S = "${WORKDIR}/iotivity-weeder"
 
@@ -19,7 +18,6 @@ S = "${WORKDIR}/iotivity-weeder"
 
 FILES_${PN} = "/opt/iotivity/apps"
 FILES_${PN} =+ "/opt/iotivity/apps/manifest"
-FILES_${PN} =+ "${systemd_unitdir}/system/weeder.service"
 
 PACKAGES = "${PN}"
 
@@ -33,16 +31,9 @@ INHIBIT_PACKAGE_STRIP = "1"
 do_install() {
     install -d ${IOTIVITY_BIN_DIR_D}/apps/iotivity-weeder
     install -c -m 555 ${S}/weeder ${IOTIVITY_BIN_DIR_D}/apps/iotivity-weeder
-
-    install -d ${D}${systemd_unitdir}/system/
-    install -m 0644 ${WORKDIR}/weeder.service ${D}${systemd_unitdir}/system/
 }
 
 FILES_${PN} = "${IOTIVITY_BIN_DIR}/apps/iotivity-weeder/weeder"
 FILES_${PN}-dbg = "${IOTIVITY_BIN_DIR}/apps/iotivity-weeder/.debug"
 RDEPENDS_${PN} += "iotivity-resource"
 BBCLASSEXTEND = "native nativesdk"
-
-inherit systemd
-
-SYSTEMD_SERVICE_${PN} = "weeder.service"
