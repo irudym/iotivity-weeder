@@ -24,7 +24,9 @@
 
 #include "weederServer.h"
 #include "namedefs.h"
+#include "sensors.h"
 
+using namespace Sensors;
 
 void WeederIoTServer::initPlatform() {
     cout << "Init weeder server" << endl;
@@ -33,6 +35,7 @@ void WeederIoTServer::initPlatform() {
             0, OC::QualityOfService::HighQos);
 
     OCPlatform::Configure(*m_platformConfig);
+    setupPins();
 }
 
 WeederIoTServer::WeederIoTServer() {
@@ -47,7 +50,24 @@ WeederIoTServer::WeederIoTServer() {
 
 WeederIoTServer::~WeederIoTServer() {
     cout << "Stop weeder server" << endl;
-    //ClosePins();
+    closePins();
+
+}
+
+void WeederIoTServer::showSensors() {
+    cout << "\tTemperature_1: " <<   getTemperatureInC (TEMP1_A_PIN) << endl;
+    cout << "\tTemperature_2: " <<   getTemperatureInC (TEMP2_A_PIN) << endl;
+    cout << "\tMoist_1: " <<   getMoistPercent(MOIST1_A_PIN) << endl;
+    cout << "\tMoist_2: " <<   getMoistPercent(MOIST2_A_PIN) << endl;
+}
+
+float WeederIoTServer::getData(int pin_num) {
+    mraa_aio_context a_pin = mraa_aio_init(pin_num);
+    return mraa_aio_read(a_pin);
+}
+
+void WeederIoTServer::setLog(const char *log_file) {
+    //TODO: set log file name
 }
 
 void WeederIoTServer::setupResources() {
@@ -87,32 +107,25 @@ void WeederIoTServer::createResource(string Uri, string Type, EntityHandler Cb, 
 }
 
 OCRepresentation WeederIoTServer::getTemperatureSensor1Rep() {
-    float temp = 0;
-    //TODO: need to read data from a sensor, use MRAA library for that
+    float temp = getTemperatureInC(TEMP1_A_PIN);
     m_temperatureSensor1Rep.setValue(TEMPERATURE_RESOURCE_KEY, temp);
     return m_temperatureSensor1Rep;
 }
 
 OCRepresentation WeederIoTServer::getTemperatureSensor2Rep() {
-    float temp = 0;
-    //TODO: need to read data from a sensor, use MRAA library for that
-
+    float temp = getTemperatureInC(TEMP2_A_PIN);
     m_temperatureSensor2Rep.setValue(TEMPERATURE_RESOURCE_KEY, temp);
     return m_temperatureSensor2Rep;
 }
 
 OCRepresentation WeederIoTServer::getMoistSensor1Rep() {
-    float temp = 0;
-    //TODO: need to read data from a sensor, use MRAA library for that
-
+    float temp = getMoistPercent(MOIST1_A_PIN);
     m_temperatureSensor1Rep.setValue(MOIST_RESOURCE_KEY, temp);
     return m_moistSensor1Rep;
 }
 
 OCRepresentation WeederIoTServer::getMoistSensor2Rep() {
-    float temp = 0;
-    //TODO: need to read data from a sensor, use MRAA library for that
-
+    float temp = getMoistPercent(MOIST2_A_PIN);
     m_temperatureSensor1Rep.setValue(MOIST_RESOURCE_KEY, temp);
     return m_moistSensor2Rep;
 }

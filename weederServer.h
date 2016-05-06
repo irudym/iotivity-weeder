@@ -53,6 +53,8 @@ class WeederIoTServer {
     void setupResources();
     void createResource(string, string, EntityHandler, OCResourceHandle&);
 
+
+
     //get data from sensors
     OCRepresentation getTemperatureSensor1Rep();
     OCRepresentation getTemperatureSensor2Rep();
@@ -73,6 +75,10 @@ class WeederIoTServer {
 public:
     WeederIoTServer();
     virtual ~WeederIoTServer();
+    void showSensors();
+    float getData(int pin_num);
+
+    void setLog(const char* log_file);
 };
 
 #endif
