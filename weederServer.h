@@ -33,11 +33,6 @@
 using namespace std;
 using namespace OC;
 
-void DuplicateString(char ** targetString, std::string sourceString)
-{
-    *targetString = new char[sourceString.length() + 1];
-    strncpy(*targetString, sourceString.c_str(), (sourceString.length() + 1));
-}
 
 class WeederIoTServer {
     shared_ptr<PlatformConfig> m_platformConfig;

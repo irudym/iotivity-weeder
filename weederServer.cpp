@@ -29,6 +29,12 @@
 #include "namedefs.h"
 #include "sensors.h"
 
+void DuplicateString(char ** targetString, std::string sourceString)
+{
+    *targetString = new char[sourceString.length() + 1];
+    strncpy(*targetString, sourceString.c_str(), (sourceString.length() + 1));
+}
+
 using namespace Sensors;
 
 void WeederIoTServer::initPlatform() {
