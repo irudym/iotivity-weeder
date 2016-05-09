@@ -64,7 +64,7 @@ void WeederIoTServer::initPlatform() {
 
     cout <<"Register the device... ";
     OCResourcePayloadAddStringLL(&m_deviceInfo.types, "oic.wk.d");
-    OCResourcePayloadAddStringLL(&m_deviceInfo.types, "oic.d.weeder");
+    //OCResourcePayloadAddStringLL(&m_deviceInfo.types, "oic.d.weeder");
 
     result = OCPlatform::registerDeviceInfo(m_deviceInfo);
 
