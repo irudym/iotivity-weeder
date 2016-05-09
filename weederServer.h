@@ -33,8 +33,17 @@
 using namespace std;
 using namespace OC;
 
+void DuplicateString(char ** targetString, std::string sourceString)
+{
+    *targetString = new char[sourceString.length() + 1];
+    strncpy(*targetString, sourceString.c_str(), (sourceString.length() + 1));
+}
+
 class WeederIoTServer {
     shared_ptr<PlatformConfig> m_platformConfig;
+
+    OCPlatformInfo m_platformInfo; //OCPlatformInfo Contains all the platform info to be stored
+    OCDeviceInfo m_deviceInfo; //OCDeviceInfo Contains all the device info to be stored
 
     //sensors representations and handlers
     OCRepresentation m_moistSensor1Rep;
