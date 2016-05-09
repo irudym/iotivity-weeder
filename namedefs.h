@@ -21,7 +21,7 @@
 #define WEEDER_NAMEDEFS_H
 
 
-#define EDISON_RESOURCE_INTERFACE "oic.if.rw"
+#define EDISON_RESOURCE_INTERFACE "oic.if.r"
 
 #define TEMPERATURE_RESOURCE_TYPE "core.temperature"
 #define TEMPERATURE1_RESOURCE_ENDPOINT "/temperature/1"
@@ -32,5 +32,15 @@
 #define MOIST1_RESOURCE_ENDPOINT "/humidity/1" // /moist
 #define MOIST2_RESOURCE_ENDPOINT "/humidity/2" // /moist
 #define MOIST_RESOURCE_KEY "humidity"       // /moist
+
+
+//platfrom description
+#define MANUFACTURER_NAME "fennec"
+#define MANUFACTURER_URL "fennec.tech"
+#define PLATFORM_ID "d5a36f31-9426-46e1-aa8f-3b48fc60334f"
+#define OS_VERSION "ostro"
+#define DEVICE_NAME "weeder"
+#define DATE_OF_MANUFACTURE "08/05/2016"
+
 
 #endif //WEEDER_NAMEDEFS_H

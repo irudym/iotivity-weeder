@@ -21,6 +21,9 @@
 #include <signal.h>
 #include <thread>
 #include <functional>
+#include <octypes.h>
+
+#include "ocpayload.h"
 
 #include "weederServer.h"
 #include "namedefs.h"
@@ -36,6 +39,30 @@ void WeederIoTServer::initPlatform() {
 
     OCPlatform::Configure(*m_platformConfig);
     setupPins();
+
+    DuplicateString(&m_platformInfo.manufacturerName, MANUFACTURER_NAME);
+    DuplicateString(&m_platformInfo.manufacturerUrl, MANUFACTURER_URL);
+    DuplicateString(&m_platformInfo.platformID, PLATFORM_ID);
+    DuplicateString(&m_platformInfo.operatingSystemVersion, OS_VERSION);
+    DuplicateString(&m_platformInfo.dateOfManufacture, DATE_OF_MANUFACTURE);
+
+    DuplicateString(&m_deviceInfo.deviceName, DEVICE_NAME);
+
+    OCStackResult result = OCPlatform::registerPlatformInfo(m_platformInfo);
+    if(result != OC_STACK_OK)
+    {
+        std::cout << "Platform Registration failed\n";
+    }
+
+    OCResourcePayloadAddStringLL(&m_deviceInfo.types, "oic.wk.d");
+    OCResourcePayloadAddStringLL(&m_deviceInfo.types, "oic.d.weeder");
+
+    result = OCPlatform::registerDeviceInfo(m_deviceInfo);
+
+    if(result != OC_STACK_OK)
+    {
+        std::cout << "Device Registration failed\n";
+    }
 }
 
 WeederIoTServer::WeederIoTServer() {
@@ -52,6 +79,13 @@ WeederIoTServer::~WeederIoTServer() {
     cout << "Stop weeder server" << endl;
     closePins();
 
+    delete[] m_platformInfo.platformID;
+    delete[] m_platformInfo.manufacturerName;
+    delete[] m_platformInfo.manufacturerUrl;
+    delete[] m_platformInfo.dateOfManufacture;
+    delete[] m_platformInfo.operatingSystemVersion;
+
+    delete[] m_deviceInfo.deviceName;
 }
 
 void WeederIoTServer::showSensors() {
