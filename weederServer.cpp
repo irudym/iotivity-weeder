@@ -46,7 +46,7 @@ void WeederIoTServer::initPlatform() {
     OCPlatform::Configure(*m_platformConfig);
     setupPins();
 
-    cout <<"Register the platform... "
+    cout <<"Register the platform... ";
     DuplicateString(&m_platformInfo.manufacturerName, MANUFACTURER_NAME);
     DuplicateString(&m_platformInfo.manufacturerUrl, MANUFACTURER_URL);
     DuplicateString(&m_platformInfo.platformID, PLATFORM_ID);
