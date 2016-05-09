@@ -7,6 +7,7 @@ include_directories("../iotivity-1.1.0/resource/include" "../iotivity-1.1.0/reso
 include_directories("../iotivity-1.1.0/resource/csdk/security/include" "../iotivity-1.1.0/resource/csdk/connectivity/inc" "../iotivity-1.1.0/resource/oc_logger/include")
 
 link_directories("~/dev/iotivity-1.1.0/out/linux/x86_64/release")
+link_directories("~/dev/mraa/build/src")
 
 
 set(SOURCE_FILES
