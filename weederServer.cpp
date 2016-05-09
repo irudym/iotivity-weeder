@@ -46,6 +46,7 @@ void WeederIoTServer::initPlatform() {
     OCPlatform::Configure(*m_platformConfig);
     setupPins();
 
+    cout <<"Register the platform... "
     DuplicateString(&m_platformInfo.manufacturerName, MANUFACTURER_NAME);
     DuplicateString(&m_platformInfo.manufacturerUrl, MANUFACTURER_URL);
     DuplicateString(&m_platformInfo.platformID, PLATFORM_ID);
@@ -59,7 +60,9 @@ void WeederIoTServer::initPlatform() {
     {
         std::cout << "Platform Registration failed\n";
     }
+    cout << "OK!" << endl;
 
+    cout <<"Register the device... ";
     OCResourcePayloadAddStringLL(&m_deviceInfo.types, "oic.wk.d");
     OCResourcePayloadAddStringLL(&m_deviceInfo.types, "oic.d.weeder");
 
@@ -69,6 +72,7 @@ void WeederIoTServer::initPlatform() {
     {
         std::cout << "Device Registration failed\n";
     }
+    cout << "OK!" <<endl;
 }
 
 WeederIoTServer::WeederIoTServer() {
