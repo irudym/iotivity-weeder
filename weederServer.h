@@ -35,6 +35,15 @@
 using namespace std;
 using namespace OC;
 
+typedef struct {
+    OCRepresentation representation;
+    OCResourceHandle handle;
+    ObservationIds observers;
+    shared_ptr<WeederObserver> observerLoop;
+}  TSensorDescriptor;
+
+typedef map<string, shared_ptr<TSensorDescriptor>> TSensorMap;
+
 
 class WeederIoTServer {
     shared_ptr<PlatformConfig> m_platformConfig;
@@ -60,6 +69,8 @@ class WeederIoTServer {
 
     ObservationIds m_moistObserver;
     shared_ptr<WeederObserver> m_moistObserverLoop;
+
+    TSensorMap m_sensors;
 
     void initPlatform();
     void setupResources();
@@ -89,6 +100,8 @@ public:
     virtual ~WeederIoTServer();
     void showSensors();
     float getData(int pin_num);
+
+    void addSensor(string name, string end_point, string type, string resource_key);
 
     void setLog(const char* log_file);
 };

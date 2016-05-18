@@ -301,6 +301,20 @@ void WeederIoTServer::temperatureObserverLoop() {
 
 }
 
+void WeederIoTServer::addSensor(string name, string end_point, string sensor_type, string resource_key) {
+    shared_ptr<TSensorDescriptor> sensor = make_shared<TSensorDescriptor>();
+
+    EntityHandler cb1 = bind(&WeederIoTServer::temperatureSensor1EntityHandler, this, placeholders::_1);
+    createResource(end_point, sensor_type, cb1,sensor->handle);
+    IoTObserverCb tempObsCb = bind(&WeederIoTServer::temperatureObserverLoop, this);
+    sensor->observerLoop = make_shared<WeederObserver>(tempObsCb);
+    m_sensors[name] = sensor;
+}
+
+
+
+
+
 
 
 
