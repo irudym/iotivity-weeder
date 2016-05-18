@@ -30,6 +30,8 @@
 #include "OCPlatform.h"
 #include "OCApi.h"
 
+#include "WeederObserver.h"
+
 using namespace std;
 using namespace OC;
 
@@ -53,6 +55,12 @@ class WeederIoTServer {
     OCRepresentation m_temperatureSensor2Rep;
     OCResourceHandle m_temperatureSensor2Res;
 
+    ObservationIds m_temperatureObservers;
+    shared_ptr<WeederObserver> m_temperatureObserverLoop;
+
+    ObservationIds m_moistObserver;
+    shared_ptr<WeederObserver> m_moistObserverLoop;
+
     void initPlatform();
     void setupResources();
     void createResource(string, string, EntityHandler, OCResourceHandle&);
@@ -66,7 +74,7 @@ class WeederIoTServer {
     OCRepresentation getMoistSensor2Rep();
 
     //polling threads to periodically query sensors values and notify subscribers
-    //void temperatureObserverLoop();
+    void temperatureObserverLoop();
     //void moistObserverLoop();
 
     OCEntityHandlerResult sensorEntityHandler(shared_ptr<OCResourceRequest>, string sensor);

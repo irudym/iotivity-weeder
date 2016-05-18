@@ -47,15 +47,22 @@ void WeederIoTServer::initPlatform() {
     setupPins();
 
     cout <<"Register the platform... ";
+    OCStackResult result;
     DuplicateString(&m_platformInfo.manufacturerName, MANUFACTURER_NAME);
     DuplicateString(&m_platformInfo.manufacturerUrl, MANUFACTURER_URL);
     DuplicateString(&m_platformInfo.platformID, PLATFORM_ID);
     DuplicateString(&m_platformInfo.operatingSystemVersion, OS_VERSION);
     DuplicateString(&m_platformInfo.dateOfManufacture, DATE_OF_MANUFACTURE);
 
-    DuplicateString(&m_deviceInfo.deviceName, DEVICE_NAME);
+    DuplicateString(&m_platformInfo.modelNumber, "1");
+    DuplicateString(&m_platformInfo.platformVersion, "1");
+    DuplicateString(&m_platformInfo.hardwareVersion, "edison");
+    DuplicateString(&m_platformInfo.firmwareVersion, "ostro");
+    DuplicateString(&m_platformInfo.supportUrl, "fennec.tech");
+    DuplicateString(&m_platformInfo.systemTime, "moscow");
 
-    OCStackResult result = OCPlatform::registerPlatformInfo(m_platformInfo);
+
+    result = OCPlatform::registerPlatformInfo(m_platformInfo);
     if(result != OC_STACK_OK)
     {
         std::cout << "Platform Registration failed\n";
@@ -63,10 +70,11 @@ void WeederIoTServer::initPlatform() {
     cout << "OK!" << endl;
 
     cout <<"Register the device... ";
-    OCResourcePayloadAddStringLL(&m_deviceInfo.types, "oic.wk.d");
+    //DuplicateString(&m_deviceInfo.deviceName, DEVICE_NAME);
+    //OCResourcePayloadAddStringLL(&m_deviceInfo.types, "oic.wk.d");
     //OCResourcePayloadAddStringLL(&m_deviceInfo.types, "oic.d.weeder");
 
-    result = OCPlatform::registerDeviceInfo(m_deviceInfo);
+    //result = OCPlatform::registerDeviceInfo(m_deviceInfo);
 
     if(result != OC_STACK_OK)
     {
@@ -94,8 +102,14 @@ WeederIoTServer::~WeederIoTServer() {
     delete[] m_platformInfo.manufacturerUrl;
     delete[] m_platformInfo.dateOfManufacture;
     delete[] m_platformInfo.operatingSystemVersion;
+    delete[] m_platformInfo.systemTime;
+    delete[] m_platformInfo.modelNumber;
+    delete[] m_platformInfo.supportUrl;
+    delete[] m_platformInfo.firmwareVersion;
+    delete[] m_platformInfo.hardwareVersion;
+    delete[] m_platformInfo.platformVersion;
 
-    delete[] m_deviceInfo.deviceName;
+    //delete[] m_deviceInfo.deviceName;
 }
 
 void WeederIoTServer::showSensors() {
@@ -118,8 +132,8 @@ void WeederIoTServer::setupResources() {
     EntityHandler cb1 = bind(&WeederIoTServer::temperatureSensor1EntityHandler, this, placeholders::_1);
     createResource(TEMPERATURE1_RESOURCE_ENDPOINT, TEMPERATURE_RESOURCE_TYPE, cb1,
                    m_temperatureSensor1Res);
-    //IoTObserverCb tempObsCb = bind(&IoTServer::temperatureObserverLoop, this);
-    //m_temperatureObserverLoop = make_shared<IoTObserver>(tempObsCb);
+    IoTObserverCb tempObsCb = bind(&WeederIoTServer::temperatureObserverLoop, this);
+    m_temperatureObserverLoop = make_shared<WeederObserver>(tempObsCb);
 
     EntityHandler cb2 = bind(&WeederIoTServer::temperatureSensor2EntityHandler, this, placeholders::_1);
     createResource(TEMPERATURE2_RESOURCE_ENDPOINT, TEMPERATURE_RESOURCE_TYPE, cb2,
@@ -219,19 +233,19 @@ OCEntityHandlerResult WeederIoTServer::sensorEntityHandler(shared_ptr<OCResource
             ObservationInfo observationInfo = Request->getObservationInfo();
             if (ObserveAction::ObserveRegister == observationInfo.action) {
                 cout << "Staring observer for " << sensor << " sensor" << endl;
-                //m_temperatureObservers.push_back(observationInfo.obsId);
-                //m_temperatureObserverLoop->start();
+                m_temperatureObservers.push_back(observationInfo.obsId);
+                m_temperatureObserverLoop->start();
 
                 //TODO: here should be the problem with result value
             }
             else if (ObserveAction::ObserveUnregister == observationInfo.action)
             {
                 cout << "Stopping observer for " << sensor << " sensor" << endl;
-                //m_temperatureObservers.erase(
-                //        remove(m_temperatureObservers.begin(), m_temperatureObservers.end(),
-                //               observationInfo.obsId),
-                //        m_temperatureObservers.end());
-                //m_temperatureObserverLoop->stop();
+                m_temperatureObservers.erase(
+                        remove(m_temperatureObservers.begin(), m_temperatureObservers.end(),
+                               observationInfo.obsId),
+                        m_temperatureObservers.end());
+                m_temperatureObserverLoop->stop();
             }
         }
     }
@@ -253,6 +267,41 @@ OCEntityHandlerResult WeederIoTServer::moistSensor1EntityHandler(shared_ptr<OCRe
 OCEntityHandlerResult WeederIoTServer::moistSensor2EntityHandler(shared_ptr<OCResourceRequest> Request) {
     return sensorEntityHandler(Request, "moist2");
 }
+
+void WeederIoTServer::temperatureObserverLoop() {
+    usleep(3000000); //sleep 3 sec
+
+    shared_ptr<OCResourceResponse> resourceResponse(new OCResourceResponse());
+    resourceResponse->setErrorCode(200);
+    resourceResponse->setResourceRepresentation(getTemperatureSensor1Rep(), EDISON_RESOURCE_INTERFACE);
+
+    OCStackResult result = OCPlatform::notifyListOfObservers(m_temperatureSensor1Res,
+                                                             m_temperatureObservers,
+                                                             resourceResponse);
+    if (result == OC_STACK_NO_OBSERVERS)
+    {
+        cout << "No more observers..Stopping observer loop..." << endl;
+        m_temperatureObserverLoop->stop();
+    }
+
+    //get data from second sensor
+
+    shared_ptr<OCResourceResponse> resourceResponse2(new OCResourceResponse());
+    resourceResponse2->setErrorCode(200);
+    resourceResponse2->setResourceRepresentation(getTemperatureSensor2Rep(), EDISON_RESOURCE_INTERFACE);
+
+    result = OCPlatform::notifyListOfObservers(m_temperatureSensor2Res,
+                                                             m_temperatureObservers,
+                                                             resourceResponse);
+    if (result == OC_STACK_NO_OBSERVERS)
+    {
+        cout << "No more observers..Stopping observer loop..." << endl;
+        m_temperatureObserverLoop->stop();
+    }
+
+}
+
+
 
 
 
