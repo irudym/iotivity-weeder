@@ -16,13 +16,23 @@
 
 #define SAMPLE_NUM 5
 
-namespace Sensors {
-    mraa_aio_context tmp1_aio = NULL;
-    mraa_aio_context tmp2_aio = NULL;
-    mraa_aio_context moist1_aio = NULL;
-    mraa_aio_context moist2_aio = NULL;
+class  MRAASystem {
+    mraa_aio_context tmp1_aio;
+    mraa_aio_context tmp2_aio;
+    mraa_aio_context moist1_aio;
+    mraa_aio_context moist2_aio;
 
-    inline void setupPins() {
+public:
+
+    MRAASystem():tmp1_aio(NULL), tmp2_aio(NULL), moist1_aio(NULL), moist2_aio(NULL) {
+        setupPins();
+    }
+
+    virtual ~MRAASystem() {
+        closePins();
+    }
+
+    void setupPins() {
         //Initialize AIO pins
         cout << "Setup pins:" << endl;
         cout << "TEMP1_PIN ...";
@@ -40,14 +50,14 @@ namespace Sensors {
         if(moist2_aio != NULL) cout << "OK" << endl; else cout << "FAIL!" << endl;
     }
 
-    inline void closePins() {
+    void closePins() {
         mraa_aio_close(tmp1_aio);
         mraa_aio_close(tmp2_aio);
         mraa_aio_close(moist1_aio);
         mraa_aio_close(moist2_aio);
     }
 
-    inline float getAverageDataRaw(int sensor)
+    float getAverageDataRaw(int sensor)
     {
         mraa_aio_context pin;
 
@@ -74,7 +84,7 @@ namespace Sensors {
         return average;
     }
 
-    inline float getTemperatureInC(int sensor)
+    float getTemperatureInC(int sensor)
     {
         // Temperature calculation using simpilfy Steinhart-Hart equation
         //
@@ -95,11 +105,11 @@ namespace Sensors {
     }
 
 
-    inline float getMoistPercent(int sensor) {
+    float getMoistPercent(int sensor) {
         float m_raw = getAverageDataRaw(sensor);
         return m_raw/400*100;
     }
-}
+};
 
 
 #endif //IOTIVITY_WEEDER_SENSORS_H

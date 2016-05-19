@@ -31,38 +31,19 @@
 #include "OCApi.h"
 
 #include "WeederObserver.h"
+#include "CSensor.h"
 
 using namespace std;
 using namespace OC;
 
-typedef struct {
-    OCRepresentation representation;
-    OCResourceHandle handle;
-    ObservationIds observers;
-    shared_ptr<WeederObserver> observerLoop;
-}  TSensorDescriptor;
-
-typedef map<string, shared_ptr<TSensorDescriptor>> TSensorMap;
-
 
 class WeederIoTServer {
+    shared_ptr<MRAASystem> m_MRAA;
     shared_ptr<PlatformConfig> m_platformConfig;
 
     OCPlatformInfo m_platformInfo; //OCPlatformInfo Contains all the platform info to be stored
     OCDeviceInfo m_deviceInfo; //OCDeviceInfo Contains all the device info to be stored
 
-    //sensors representations and handlers
-    OCRepresentation m_moistSensor1Rep;
-    OCResourceHandle m_moistSensor1Res;
-
-    OCRepresentation m_moistSensor2Rep;
-    OCResourceHandle m_moistSensor2Res;
-
-    OCRepresentation m_temperatureSensor1Rep;
-    OCResourceHandle m_temperatureSensor1Res;
-
-    OCRepresentation m_temperatureSensor2Rep;
-    OCResourceHandle m_temperatureSensor2Res;
 
     ObservationIds m_temperatureObservers;
     shared_ptr<WeederObserver> m_temperatureObserverLoop;
@@ -76,32 +57,13 @@ class WeederIoTServer {
     void setupResources();
     void createResource(string, string, EntityHandler, OCResourceHandle&);
 
-
-
-    //get data from sensors
-    OCRepresentation getTemperatureSensor1Rep();
-    OCRepresentation getTemperatureSensor2Rep();
-    OCRepresentation getMoistSensor1Rep();
-    OCRepresentation getMoistSensor2Rep();
-
-    //polling threads to periodically query sensors values and notify subscribers
-    void temperatureObserverLoop();
-    //void moistObserverLoop();
-
-    OCEntityHandlerResult sensorEntityHandler(shared_ptr<OCResourceRequest>, string sensor);
-
-    OCEntityHandlerResult temperatureSensor1EntityHandler(shared_ptr<OCResourceRequest>);
-    OCEntityHandlerResult temperatureSensor2EntityHandler(shared_ptr<OCResourceRequest>);
-    OCEntityHandlerResult moistSensor1EntityHandler(shared_ptr<OCResourceRequest>);
-    OCEntityHandlerResult moistSensor2EntityHandler(shared_ptr<OCResourceRequest>);
-
 public:
     WeederIoTServer();
     virtual ~WeederIoTServer();
     void showSensors();
     float getData(int pin_num);
 
-    void addSensor(string name, string end_point, string type, string resource_key);
+    shared_ptr<CSensor> addSensor(string name, string end_point, string type, string resource_key, int pin);
 
     void setLog(const char* log_file);
 };

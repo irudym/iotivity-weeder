@@ -2,15 +2,21 @@
 <module type="CPP_MODULE" version="4">
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
-      <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/Makefile" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/main.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/WeederObserver.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/namedefs.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/weederServer.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/weederServer.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/sensors.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Makefile" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/MoistSensor.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/namedefs.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/WeederObserver.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/CSensor.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/TemperatureSensor.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/WeederObserver.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/MoistSensor.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/sensors.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/CSensor.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/main.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/TemperatureSensor.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/weederServer.cpp" isTestSource="false" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library">

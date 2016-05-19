@@ -26,8 +26,9 @@
 #include "ocpayload.h"
 
 #include "weederServer.h"
-#include "namedefs.h"
-#include "sensors.h"
+
+#include "TemperatureSensor.h"
+#include "MoistSensor.h"
 
 void DuplicateString(char ** targetString, std::string sourceString)
 {
@@ -35,7 +36,6 @@ void DuplicateString(char ** targetString, std::string sourceString)
     strncpy(*targetString, sourceString.c_str(), (sourceString.length() + 1));
 }
 
-using namespace Sensors;
 
 void WeederIoTServer::initPlatform() {
     cout << "Init weeder server" << endl;
@@ -44,7 +44,6 @@ void WeederIoTServer::initPlatform() {
             0, OC::QualityOfService::HighQos);
 
     OCPlatform::Configure(*m_platformConfig);
-    setupPins();
 
     cout <<"Register the platform... ";
     OCStackResult result;
@@ -86,16 +85,10 @@ void WeederIoTServer::initPlatform() {
 WeederIoTServer::WeederIoTServer() {
     initPlatform();
     setupResources();
-
-    m_moistSensor1Rep.setValue(MOIST_RESOURCE_KEY, 0);
-    m_moistSensor2Rep.setValue(MOIST_RESOURCE_KEY, 0);
-    m_temperatureSensor1Rep.setValue(TEMPERATURE_RESOURCE_KEY, (float) 0.0f);
-    m_temperatureSensor2Rep.setValue(TEMPERATURE_RESOURCE_KEY, (float) 0.0f);
 }
 
 WeederIoTServer::~WeederIoTServer() {
     cout << "Stop weeder server" << endl;
-    closePins();
 
     delete[] m_platformInfo.platformID;
     delete[] m_platformInfo.manufacturerName;
@@ -113,10 +106,10 @@ WeederIoTServer::~WeederIoTServer() {
 }
 
 void WeederIoTServer::showSensors() {
-    cout << "\tTemperature_1: " <<   getTemperatureInC (TEMP1_A_PIN) << endl;
-    cout << "\tTemperature_2: " <<   getTemperatureInC (TEMP2_A_PIN) << endl;
-    cout << "\tMoist_1: " <<   getMoistPercent(MOIST1_A_PIN) << endl;
-    cout << "\tMoist_2: " <<   getMoistPercent(MOIST2_A_PIN) << endl;
+    cout << "\tTemperature_1: " <<   m_MRAA->getTemperatureInC (TEMP1_A_PIN) << endl;
+    cout << "\tTemperature_2: " <<   m_MRAA->getTemperatureInC (TEMP2_A_PIN) << endl;
+    cout << "\tMoist_1: " <<   m_MRAA->getMoistPercent(MOIST1_A_PIN) << endl;
+    cout << "\tMoist_2: " <<   m_MRAA->getMoistPercent(MOIST2_A_PIN) << endl;
 }
 
 float WeederIoTServer::getData(int pin_num) {
@@ -129,23 +122,19 @@ void WeederIoTServer::setLog(const char *log_file) {
 }
 
 void WeederIoTServer::setupResources() {
-    EntityHandler cb1 = bind(&WeederIoTServer::temperatureSensor1EntityHandler, this, placeholders::_1);
-    createResource(TEMPERATURE1_RESOURCE_ENDPOINT, TEMPERATURE_RESOURCE_TYPE, cb1,
-                   m_temperatureSensor1Res);
-    IoTObserverCb tempObsCb = bind(&WeederIoTServer::temperatureObserverLoop, this);
-    m_temperatureObserverLoop = make_shared<WeederObserver>(tempObsCb);
 
-    EntityHandler cb2 = bind(&WeederIoTServer::temperatureSensor2EntityHandler, this, placeholders::_1);
-    createResource(TEMPERATURE2_RESOURCE_ENDPOINT, TEMPERATURE_RESOURCE_TYPE, cb2,
-                   m_temperatureSensor2Res);
+    m_MRAA = make_shared<MRAASystem>();
 
-    EntityHandler cb3 = bind(&WeederIoTServer::moistSensor1EntityHandler, this, placeholders::_1);
-    createResource(MOIST1_RESOURCE_ENDPOINT, MOIST_RESOURCE_TYPE, cb3,
-                   m_moistSensor1Res);
-    EntityHandler cb4 = bind(&WeederIoTServer::moistSensor2EntityHandler, this, placeholders::_1);
-    createResource(MOIST2_RESOURCE_ENDPOINT, MOIST_RESOURCE_TYPE, cb4,
-                   m_moistSensor2Res);
+    WeederSensor sensor = addSensor("temperature1", TEMPERATURE1_RESOURCE_ENDPOINT, TEMPERATURE_RESOURCE_TYPE, TEMPERATURE_RESOURCE_KEY, TEMP1_A_PIN);
+    if(sensor == NULL) cout<<"Error adding temperature sensor #1" << endl;
+    sensor = addSensor("temperature2", TEMPERATURE2_RESOURCE_ENDPOINT, TEMPERATURE_RESOURCE_TYPE, TEMPERATURE_RESOURCE_KEY, TEMP2_A_PIN);
+    if(sensor == NULL) cout<<"Error adding temperature sensor #2" << endl;
 
+    sensor = addSensor("moist1", MOIST1_RESOURCE_ENDPOINT, MOIST_RESOURCE_TYPE, MOIST_RESOURCE_KEY, MOIST1_A_PIN);
+    if(sensor == NULL) cout<<"Error adding moist sensor #1" << endl;
+
+    sensor = addSensor("moist2", MOIST2_RESOURCE_ENDPOINT, MOIST_RESOURCE_TYPE, MOIST_RESOURCE_KEY, MOIST2_A_PIN);
+    if(sensor == NULL) cout<<"Error adding moist sensor #2" << endl;
 }
 
 void WeederIoTServer::createResource(string Uri, string Type, EntityHandler Cb, OCResourceHandle& Handle) {
@@ -164,152 +153,41 @@ void WeederIoTServer::createResource(string Uri, string Type, EntityHandler Cb, 
         cout << "\tSuccesfully created " << Type << " resource" << endl;
 }
 
-OCRepresentation WeederIoTServer::getTemperatureSensor1Rep() {
-    float temp = getTemperatureInC(TEMP1_A_PIN);
-    m_temperatureSensor1Rep.setValue(TEMPERATURE_RESOURCE_KEY, temp);
-    return m_temperatureSensor1Rep;
-}
-
-OCRepresentation WeederIoTServer::getTemperatureSensor2Rep() {
-    float temp = getTemperatureInC(TEMP2_A_PIN);
-    m_temperatureSensor2Rep.setValue(TEMPERATURE_RESOURCE_KEY, temp);
-    return m_temperatureSensor2Rep;
-}
-
-OCRepresentation WeederIoTServer::getMoistSensor1Rep() {
-    float temp = getMoistPercent(MOIST1_A_PIN);
-    m_temperatureSensor1Rep.setValue(MOIST_RESOURCE_KEY, temp);
-    return m_moistSensor1Rep;
-}
-
-OCRepresentation WeederIoTServer::getMoistSensor2Rep() {
-    float temp = getMoistPercent(MOIST2_A_PIN);
-    m_temperatureSensor1Rep.setValue(MOIST_RESOURCE_KEY, temp);
-    return m_moistSensor2Rep;
-}
 
 
-OCEntityHandlerResult WeederIoTServer::sensorEntityHandler(shared_ptr<OCResourceRequest> Request, string sensor) {
-    OCEntityHandlerResult result = OC_EH_ERROR;
-    if(Request) {
-        string requestType = Request->getRequestType();
-        int requestFlag = Request->getRequestHandlerFlag();
+shared_ptr<CSensor> WeederIoTServer::addSensor(string name, string end_point, string sensor_type, string resource_key, int pin) {
+    shared_ptr<CSensor> sensor;
+    IoTObserverCb tempObsCb;
+    EntityHandler cb;
+    //cout << "Add a sensor::\tName: " << name << "\n\tResource key: " << resource_key << "\n\tType: " << sensor_type <<endl;
+    if(sensor_type == TEMPERATURE_RESOURCE_TYPE) {
+        sensor = make_shared<TemperatureSensor>(name, pin);
+        tempObsCb = bind(&TemperatureSensor::observerLoop, (TemperatureSensor*)sensor.get());
+        cb = bind(&TemperatureSensor::entityHandler, (TemperatureSensor*)sensor.get(), placeholders::_1);
 
-        if(requestFlag & RequestHandlerFlag::RequestFlag) {
-            auto Response = make_shared<OC::OCResourceResponse>();
-            Response->setRequestHandle(Request->getRequestHandle());
-            Response->setResourceHandle(Request->getRequestHandle());
+    } else if(sensor_type == MOIST_RESOURCE_TYPE) {
+        sensor = make_shared<MoistSensor>(name, pin);
+        tempObsCb = bind(&MoistSensor::observerLoop, (MoistSensor*)sensor.get());
+        cb = bind(&MoistSensor::entityHandler, (MoistSensor*)sensor.get(), placeholders::_1);
 
-            if(requestType == "GET") {
-                cout << "GET request for " << sensor << " reading" << endl;
-                if(Response) {
-                    Response->setErrorCode(200);
-                    Response->setResponseResult(OC_EH_OK);
-                    if(sensor == "temperature1")
-                        Response->setResourceRepresentation(getTemperatureSensor1Rep());
-                    else if(sensor == "temperature2")
-                        Response->setResourceRepresentation(getTemperatureSensor2Rep());
-                    else if(sensor == "moist1")
-                        Response->setResourceRepresentation(getMoistSensor1Rep());
-                    else if(sensor == "moist2")
-                        Response->setResourceRepresentation(getMoistSensor2Rep());
-                    else {
-                        cerr << "Unsupported type of sensor:" << sensor << endl;
-                        return result;
-                    }
-                    if(OCPlatform::sendResponse(Response) == OC_STACK_OK) {
-                        result = OC_EH_OK;
-                    }
-                }
-            }
-            else {
-                Response->setResponseResult(OC_EH_ERROR);
-                OCPlatform::sendResponse(Response);
-                cerr << "Unsupported request type" << endl;
-                return result;
-            }
-        }
-        if(requestFlag & RequestHandlerFlag::ObserverFlag) {
-            ObservationInfo observationInfo = Request->getObservationInfo();
-            if (ObserveAction::ObserveRegister == observationInfo.action) {
-                cout << "Staring observer for " << sensor << " sensor" << endl;
-                m_temperatureObservers.push_back(observationInfo.obsId);
-                m_temperatureObserverLoop->start();
-
-                //TODO: here should be the problem with result value
-            }
-            else if (ObserveAction::ObserveUnregister == observationInfo.action)
-            {
-                cout << "Stopping observer for " << sensor << " sensor" << endl;
-                m_temperatureObservers.erase(
-                        remove(m_temperatureObservers.begin(), m_temperatureObservers.end(),
-                               observationInfo.obsId),
-                        m_temperatureObservers.end());
-                m_temperatureObserverLoop->stop();
-            }
-        }
-    }
-    return result;
-}
-
-OCEntityHandlerResult WeederIoTServer::temperatureSensor1EntityHandler(shared_ptr<OCResourceRequest> Request) {
-    return sensorEntityHandler(Request, "temperature1");
-}
-
-OCEntityHandlerResult WeederIoTServer::temperatureSensor2EntityHandler(shared_ptr<OCResourceRequest> Request) {
-    return sensorEntityHandler(Request, "temperature2");
-}
-
-OCEntityHandlerResult WeederIoTServer::moistSensor1EntityHandler(shared_ptr<OCResourceRequest> Request) {
-    return sensorEntityHandler(Request, "moist1");
-}
-
-OCEntityHandlerResult WeederIoTServer::moistSensor2EntityHandler(shared_ptr<OCResourceRequest> Request) {
-    return sensorEntityHandler(Request, "moist2");
-}
-
-void WeederIoTServer::temperatureObserverLoop() {
-    usleep(3000000); //sleep 3 sec
-
-    shared_ptr<OCResourceResponse> resourceResponse(new OCResourceResponse());
-    resourceResponse->setErrorCode(200);
-    resourceResponse->setResourceRepresentation(getTemperatureSensor1Rep(), EDISON_RESOURCE_INTERFACE);
-
-    OCStackResult result = OCPlatform::notifyListOfObservers(m_temperatureSensor1Res,
-                                                             m_temperatureObservers,
-                                                             resourceResponse);
-    if (result == OC_STACK_NO_OBSERVERS)
-    {
-        cout << "No more observers..Stopping observer loop..." << endl;
-        m_temperatureObserverLoop->stop();
+    } else {
+        cout << "Undefined type of sensor!"<<endl;
+        cout << "\tName: " << name << "\n\tResource key: " << resource_key << "\n\tType: " << sensor_type <<endl;
+        //throw error
+        return NULL;
     }
 
-    //get data from second sensor
+    sensor->setMRAA(m_MRAA);
+    sensor->m_ObserverLoop = make_shared<WeederObserver>(tempObsCb);
 
-    shared_ptr<OCResourceResponse> resourceResponse2(new OCResourceResponse());
-    resourceResponse2->setErrorCode(200);
-    resourceResponse2->setResourceRepresentation(getTemperatureSensor2Rep(), EDISON_RESOURCE_INTERFACE);
+    createResource(end_point, sensor_type, cb,sensor->m_Handle);
 
-    result = OCPlatform::notifyListOfObservers(m_temperatureSensor2Res,
-                                                             m_temperatureObservers,
-                                                             resourceResponse);
-    if (result == OC_STACK_NO_OBSERVERS)
-    {
-        cout << "No more observers..Stopping observer loop..." << endl;
-        m_temperatureObserverLoop->stop();
-    }
-
-}
-
-void WeederIoTServer::addSensor(string name, string end_point, string sensor_type, string resource_key) {
-    shared_ptr<TSensorDescriptor> sensor = make_shared<TSensorDescriptor>();
-
-    EntityHandler cb1 = bind(&WeederIoTServer::temperatureSensor1EntityHandler, this, placeholders::_1);
-    createResource(end_point, sensor_type, cb1,sensor->handle);
-    IoTObserverCb tempObsCb = bind(&WeederIoTServer::temperatureObserverLoop, this);
-    sensor->observerLoop = make_shared<WeederObserver>(tempObsCb);
     m_sensors[name] = sensor;
+    return sensor;
 }
+
+
+
 
 
 

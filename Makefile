@@ -11,7 +11,7 @@ ifeq ($(PKG_CONFIG_SYSROOT_DIR),)
 endif
 	$(CXX) -std=c++0x -c -o $@ $< $(YOCTOCXXFLAGS)
 
-weeder: main.o weederServer.o
+weeder: main.o weederServer.o CSensor.o MoistSensor.o TemperatureSensor.o WeederObserver.o
 	$(CXX) -o weeder main.o weederServer.o $(YOCTOLDFLAGS)
 
 clean:

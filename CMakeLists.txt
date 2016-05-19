@@ -17,7 +17,7 @@ set(SOURCE_FILES
     WeederObserver.h
     WeederObserver.cpp
     weederServer.cpp
-    weederServer.h sensors.h)
+    weederServer.h sensors.h CSensor.cpp CSensor.h TemperatureSensor.cpp TemperatureSensor.h MoistSensor.cpp MoistSensor.h)
 
-add_executable(weeder ${SOURCE_FILES})
+add_executable(weeder ${SOURCE_FILES} CSensor.cpp CSensor.h MoistSensor.cpp MoistSensor.h)
 target_link_libraries(weeder oc octbstack logger coap c_common ocsrm mraa pthread)
