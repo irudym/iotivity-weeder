@@ -1,6 +1,6 @@
 YOCTOCXXFLAGS=-I$(PKG_CONFIG_SYSROOT_DIR)/usr/include/iotivity/resource/ -I$(PKG_CONFIG_SYSROOT_DIR)/usr/include/iotivity/resource/stack -I$(PKG_CONFIG_SYSROOT_DIR)/usr/include/iotivity/resource/ocrandom -I$(PKG_CONFIG_SYSROOT_DIR)/usr/include/iotivity/resource/logger -I$(PKG_CONFIG_SYSROOT_DIR)/usr/include/iotivity/resource/oc_logger
 
-YOCTOLDFLAGS=-loc -loctbstack -loc_logger -lmraa
+YOCTOLDFLAGS=-loc -loctbstack -loc_logger -lmraa -lpthread -lcoap
 
 all: weeder
 
@@ -12,7 +12,7 @@ endif
 	$(CXX) -std=c++0x -c -o $@ $< $(YOCTOCXXFLAGS)
 
 weeder: main.o weederServer.o CSensor.o MoistSensor.o TemperatureSensor.o WeederObserver.o
-	$(CXX) -o weeder main.o weederServer.o $(YOCTOLDFLAGS)
+	$(CXX) -o weeder main.o weederServer.o CSensor.o MoistSensor.o TemperatureSensor.o WeederObserver.o $(YOCTOLDFLAGS)
 
 clean:
 	rm -rf weeder *.o
