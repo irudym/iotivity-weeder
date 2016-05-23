@@ -10,6 +10,7 @@ OCRepresentation MoistSensor::getRepresentation() {
         return m_Representation;
     }
     float temp = m_MRAA->getMoistPercent(m_Pin);
+    cout << "[MoistSensor]::getMoistPercent(" << m_Pin << ") = " << temp << endl;
     m_Representation.setValue(MOIST_RESOURCE_KEY, temp);
     return m_Representation;
 }
@@ -27,7 +28,7 @@ void MoistSensor::observerLoop() {
                                                                  resourceResponse);
         if (result == OC_STACK_NO_OBSERVERS) {
             cout << "[Sensor: " << m_Name << "]:: No more observers..Stopping observer loop..." << endl;
-            m_ObserverLoop->stop();
+            //m_ObserverLoop->stop();
         } else if(result!=OC_STACK_OK) {
             cout << "[Sensor: " << m_Name << "]:: error during notifying observers: " << result << endl;
         }

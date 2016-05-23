@@ -25,9 +25,13 @@ void TemperatureSensor::observerLoop() {
         OCStackResult result = OCPlatform::notifyListOfObservers(m_Handle,
                                                                  m_Observers,
                                                                  resourceResponse);
+
+        cout << "[TemperatureSensor]::resourceResponse" << endl;
+        cout << "\tError code: " << resourceResponse->getErrorCode() << "\tResource result: " << resourceResponse->getResponseResult() << endl;
+
         if (result == OC_STACK_NO_OBSERVERS) {
             cout << "[Sensor: " << m_Name << "]:: No more observers..Stopping observer loop..." << endl;
-            m_ObserverLoop->stop();
+            //m_ObserverLoop->stop();
         } else if(result!=OC_STACK_OK) {
             cout << "[Sensor: " << m_Name << "]:: error during notifying observers: " << result << endl;
         }
